@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 
 declare let process: {
     env: {
-        CRYPTO_SECRET: string
+        URL_SHORTNER_CRYPTO_SECRET: string
     }
 }
 
@@ -72,11 +72,11 @@ let JsonFormatter = {
 };
 
 export const encrypt = (str: string) => {
-    let encrypted = CryptoJS.AES.encrypt(str, process.env.CRYPTO_SECRET);
+    let encrypted = CryptoJS.AES.encrypt(str, process.env.URL_SHORTNER_CRYPTO_SECRET);
     return encrypted.toString();
 }
 
 export const decrypt = (encryptedText: string) => {
-    return CryptoJS.AES.decrypt(encryptedText, process.env.CRYPTO_SECRET).toString(CryptoJS.enc.Utf8);
+    return CryptoJS.AES.decrypt(encryptedText, process.env.URL_SHORTNER_CRYPTO_SECRET).toString(CryptoJS.enc.Utf8);
 }
 

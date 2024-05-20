@@ -38,7 +38,6 @@ const isCookieValid = (cookieValue: string): undefined | string => {
 export const checkAndSetCookie = (canSetCookie: boolean = true): CheckCookieResult => {
     let cookie = getCookie();
     let decryptedCookie;
-    let isNewCookie = false;
     if (cookie) decryptedCookie = isCookieValid(cookie);
 
     if (!decryptedCookie && !canSetCookie) return { new_cookie: true, cookie: '', decrypted_cookie: '' }
@@ -48,7 +47,6 @@ export const checkAndSetCookie = (canSetCookie: boolean = true): CheckCookieResu
         setCookie(newCookie);
         decryptedCookie = decrypted_value;
         cookie = newCookie;
-        isNewCookie = true;
     }
     return { new_cookie: false, cookie: cookie, decrypted_cookie: decryptedCookie }
 }
