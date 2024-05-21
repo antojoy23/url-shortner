@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState, useRef } from "react";
+import { Urls } from "./lib/db/database";
+import { URL_SHORTNER_BASEPATH } from "./api/constants";
 
 export default function Home() {
   const [url, setUrl] = useState('');
+  const [previousUrls, setPreviousUrls] = useState<Urls[]>([]);
   const urlOutputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -11,7 +14,7 @@ export default function Home() {
       const res = await fetch('/api');
       if (res.ok) {
         const resJson = await res.json();
-        console.log(resJson);
+        setPreviousUrls(resJson.urls);
       }
     }
 
@@ -22,7 +25,13 @@ export default function Home() {
     const res = await fetch('/api', { method: "POST", body: JSON.stringify({ url: url }) });
     if (res.ok) {
       const resJson = await res.json();
-      urlOutputRef.current && (urlOutputRef.current.innerText = `https://antojoy.com/a/${resJson.hash}`)
+      let urlHash = resJson.hash || resJson.url.url_hash;
+      urlHash &&
+        urlOutputRef.current &&
+        (urlOutputRef.current.innerHTML = `Genrated Url : <a href="${location.origin}${URL_SHORTNER_BASEPATH}${urlHash}" target="_blank">${location.origin}${URL_SHORTNER_BASEPATH}${urlHash}</a>`)
+      if (resJson.status == "error") {
+        resJson.error = "duplicate_entry" ? alert('Duplicate entry') : alert('Unknown error');
+      }
     }
   }
 
@@ -34,6 +43,22 @@ export default function Home() {
         <input type="button" style={{ marginLeft: "5px", cursor: "pointer", border: "1px solid #000" }} value={"Generate"} onClick={handleGenerateUrl} />
       </div>
       <p ref={urlOutputRef}></p>
+      <div>
+        <h4>Previous Urls</h4>
+        {
+          previousUrls.map((previousUrl) => {
+            return (
+              <div key={previousUrl.id}>
+                <div>=========================================================================</div>
+                <p>Original Url: <a href={`${previousUrl.url}`} target="_blank">{`${previousUrl.url}`}</a></p>
+                <p>Redirected Url: <a href={`${location.origin}${URL_SHORTNER_BASEPATH}${previousUrl.url_hash}`} target="_blank">{`${location.origin}${URL_SHORTNER_BASEPATH}${previousUrl.url_hash}`}</a></p>
+                <p>Visits: {previousUrl.visits}</p>
+                <div>=========================================================================</div>
+              </div>
+            )
+          })
+        }
+      </div>
     </main>
   );
 }
